@@ -4,10 +4,11 @@ Full-stack user management assignment built with Spring Boot, PostgreSQL, and Re
 
 ## Features
 
-- Create users with name, email, primary mobile, date of birth, PAN, and Aadhaar.
+- Create users with name, email, primary/secondary mobile, date of birth, place of birth, addresses, PAN, and Aadhaar.
 - Update users with partial request payloads.
 - List active users with Spring pagination and sorting.
 - Soft delete users by marking them inactive.
+- Create, edit, list, paginate, and delete users from the React UI.
 - Validate request payloads on both backend and frontend.
 - Encrypt PAN and Aadhaar before storing them in PostgreSQL.
 - Return masked PAN and Aadhaar values in API responses.
@@ -177,7 +178,11 @@ Example request:
 { "name": "<name>",
  "email": "<email>",
  "primaryMobile": "<mobile_number>",
+ "secondaryMobile": "<mobile_number>",
  "dateOfBirth": "<YYYY-MM-DD>",
+ "placeOfBirth": "<city_or_place>",
+ "currentAddress": "<current_address>",
+ "permanentAddress": "<permanent_address>",
  "pan": "<pan_number>",
  "aadhaar": "<aadhaar_number>" }
 ```
@@ -213,7 +218,11 @@ DELETE /api/v1/users/{id}
 | `name` | required | optional | 2 to 120 characters, not blank |
 | `email` | required | optional | valid email, max 254 characters |
 | `primaryMobile` | required | optional | Indian mobile format: starts with 6-9 and has 10 digits |
+| `secondaryMobile` | optional | optional | Indian mobile format: starts with 6-9 and has 10 digits |
 | `dateOfBirth` | required | optional | must be in the past |
+| `placeOfBirth` | optional | optional | max 120 characters |
+| `currentAddress` | optional | optional | max 500 characters |
+| `permanentAddress` | optional | optional | max 500 characters |
 | `pan` | required | optional | format: `ABCDE1234F` |
 | `aadhaar` | required | optional | exactly 12 digits |
 
@@ -238,6 +247,25 @@ Validation errors include an `errors` object keyed by field name.
 - `is_active` controls soft deletion.
 - Email and primary mobile are unique among active users.
 - PAN and Aadhaar are encrypted with AES/GCM before persistence and masked in responses.
+- Secondary mobile, place of birth, current address, and permanent address are optional assignment fields exposed through the API and UI.
+
+## Best Practices Applied
+
+- Layered backend structure with controller, service, repository, DTO, and entity boundaries.
+- Bean Validation on API payloads and Zod validation in the frontend.
+- Pagination is bounded to avoid very large untrusted page sizes.
+- Soft delete keeps historical records while hiding inactive users from list and update flows.
+- Optimistic locking is enabled with a `version` column.
+- Sensitive identity values are encrypted at rest and masked in API responses.
+- Environment variables are used for database and encryption configuration.
+- Unit tests cover create, update, delete, not found, and pagination behavior.
+
+## Pain Points And Learnings
+
+- Masked PAN and Aadhaar values should not be reused for edits, so the UI leaves those fields blank in edit mode and only updates them when a new valid value is entered.
+- Optional form fields need careful empty-string handling; the frontend omits blank optional values so backend regex validation is not triggered by accidental empty strings.
+- Soft delete affects uniqueness rules, so email and primary mobile checks are scoped to active users.
+- Keeping DTOs separate from the entity made it easier to control which fields are required, optional, masked, or internal.
 
 ## Running Tests
 
@@ -265,7 +293,11 @@ curl -i -X POST http://localhost:8081/api/v1/users \
     "name": "Aarav Sharma",
     "email": "aarav.sharma@example.com",
     "primaryMobile": "9876543210",
+    "secondaryMobile": "9876543211",
     "dateOfBirth": "1992-04-12",
+    "placeOfBirth": "Pune",
+    "currentAddress": "Current address line",
+    "permanentAddress": "Permanent address line",
     "pan": "ABCDE1234F",
     "aadhaar": "123456789012"
   }'

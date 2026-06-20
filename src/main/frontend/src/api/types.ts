@@ -3,7 +3,11 @@ export interface UserResponse {
   name: string;
   email: string;
   primaryMobile: string;
+  secondaryMobile?: string;
   dateOfBirth: string;
+  placeOfBirth?: string;
+  currentAddress?: string;
+  permanentAddress?: string;
   pan: string;
   aadhaar: string;
   active: boolean;
@@ -16,7 +20,11 @@ export interface UserCreateRequest {
   name: string;
   email: string;
   primaryMobile: string;
+  secondaryMobile?: string;
   dateOfBirth: string;
+  placeOfBirth?: string;
+  currentAddress?: string;
+  permanentAddress?: string;
   pan: string;
   aadhaar: string;
 }

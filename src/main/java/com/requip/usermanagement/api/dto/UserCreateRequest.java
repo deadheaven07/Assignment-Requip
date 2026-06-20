@@ -23,9 +23,21 @@ public record UserCreateRequest(
         @Pattern(regexp = "^[6-9]\\d{9}$", message = "Primary mobile must be a valid 10-digit Indian mobile number")
         String primaryMobile,
 
+        @Pattern(regexp = "^[6-9]\\d{9}$", message = "Secondary mobile must be a valid 10-digit Indian mobile number")
+        String secondaryMobile,
+
         @NotNull(message = "Date of birth is required")
         @Past(message = "Date of birth must be in the past")
         LocalDate dateOfBirth,
+
+        @Size(max = 120, message = "Place of birth must not exceed 120 characters")
+        String placeOfBirth,
+
+        @Size(max = 500, message = "Current address must not exceed 500 characters")
+        String currentAddress,
+
+        @Size(max = 500, message = "Permanent address must not exceed 500 characters")
+        String permanentAddress,
 
         @NotBlank(message = "PAN is required")
         @Pattern(regexp = "^[A-Z]{5}[0-9]{4}[A-Z]{1}$", message = "PAN must match the required format")

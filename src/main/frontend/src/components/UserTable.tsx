@@ -1,10 +1,15 @@
 import { useState } from 'react';
 
+import type { UserResponse } from '../api/types';
 import { useDeleteUser, useGetUsers } from '../hooks/useUsers';
 
 const PAGE_SIZE = 10;
 
-export function UserTable() {
+interface UserTableProps {
+  onEdit: (user: UserResponse) => void;
+}
+
+export function UserTable({ onEdit }: UserTableProps) {
   const [page, setPage] = useState(0);
   const usersQuery = useGetUsers(page, PAGE_SIZE);
   const deleteUser = useDeleteUser();
@@ -48,7 +53,19 @@ export function UserTable() {
                 Mobile
               </th>
               <th scope="col" className="px-4 py-3 text-left font-semibold">
+                Secondary
+              </th>
+              <th scope="col" className="px-4 py-3 text-left font-semibold">
                 Date of Birth
+              </th>
+              <th scope="col" className="px-4 py-3 text-left font-semibold">
+                Birth Place
+              </th>
+              <th scope="col" className="px-4 py-3 text-left font-semibold">
+                Current Address
+              </th>
+              <th scope="col" className="px-4 py-3 text-left font-semibold">
+                Permanent Address
               </th>
               <th scope="col" className="px-4 py-3 text-left font-semibold">
                 PAN
@@ -67,7 +84,15 @@ export function UserTable() {
                 <td className="whitespace-nowrap px-4 py-3 font-medium text-slate-950">{user.name}</td>
                 <td className="whitespace-nowrap px-4 py-3 text-slate-700">{user.email}</td>
                 <td className="whitespace-nowrap px-4 py-3 text-slate-700">{user.primaryMobile}</td>
+                <td className="whitespace-nowrap px-4 py-3 text-slate-700">{user.secondaryMobile || '-'}</td>
                 <td className="whitespace-nowrap px-4 py-3 text-slate-700">{user.dateOfBirth}</td>
+                <td className="whitespace-nowrap px-4 py-3 text-slate-700">{user.placeOfBirth || '-'}</td>
+                <td className="max-w-64 px-4 py-3 text-slate-700">
+                  <span className="line-clamp-2">{user.currentAddress || '-'}</span>
+                </td>
+                <td className="max-w-64 px-4 py-3 text-slate-700">
+                  <span className="line-clamp-2">{user.permanentAddress || '-'}</span>
+                </td>
                 <td className="whitespace-nowrap px-4 py-3 text-slate-700">
                   <span className="rounded-full bg-slate-100 px-2.5 py-1 font-medium text-slate-700">{user.pan}</span>
                 </td>
@@ -75,21 +100,30 @@ export function UserTable() {
                   <span className="rounded-full bg-slate-100 px-2.5 py-1 font-medium text-slate-700">{user.aadhaar}</span>
                 </td>
                 <td className="whitespace-nowrap px-4 py-3 text-right">
-                  <button
-                    type="button"
-                    onClick={() => deleteUser.mutate(user.id)}
-                    disabled={deleteUser.isPending}
-                    className="rounded-md border border-red-200 bg-white px-3 py-1.5 font-medium text-red-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-red-300 hover:bg-red-50 hover:text-red-800 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-red-200 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => onEdit(user)}
+                      className="rounded-md border border-sky-200 bg-white px-3 py-1.5 font-medium text-sky-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-800 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-sky-200"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => deleteUser.mutate(user.id)}
+                      disabled={deleteUser.isPending}
+                      className="rounded-md border border-red-200 bg-white px-3 py-1.5 font-medium text-red-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-red-300 hover:bg-red-50 hover:text-red-800 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-red-200 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
 
             {!usersQuery.isLoading && users.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
+                <td colSpan={11} className="px-4 py-8 text-center text-slate-500">
                   No users found.
                 </td>
               </tr>
@@ -97,7 +131,7 @@ export function UserTable() {
 
             {usersQuery.isLoading && (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
+                <td colSpan={11} className="px-4 py-8 text-center text-slate-500">
                   Loading users...
                 </td>
               </tr>

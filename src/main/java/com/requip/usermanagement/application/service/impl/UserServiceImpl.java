@@ -33,7 +33,11 @@ public class UserServiceImpl implements UserService {
                 .name(request.name())
                 .email(request.email())
                 .primaryMobile(request.primaryMobile())
+                .secondaryMobile(request.secondaryMobile())
                 .dateOfBirth(request.dateOfBirth())
+                .placeOfBirth(request.placeOfBirth())
+                .currentAddress(request.currentAddress())
+                .permanentAddress(request.permanentAddress())
                 .pan(request.pan())
                 .aadhaar(request.aadhaar())
                 .isActive(Boolean.TRUE)
@@ -59,8 +63,20 @@ public class UserServiceImpl implements UserService {
         if (request.primaryMobile() != null) {
             user.setPrimaryMobile(request.primaryMobile());
         }
+        if (request.secondaryMobile() != null) {
+            user.setSecondaryMobile(request.secondaryMobile());
+        }
         if (request.dateOfBirth() != null) {
             user.setDateOfBirth(request.dateOfBirth());
+        }
+        if (request.placeOfBirth() != null) {
+            user.setPlaceOfBirth(request.placeOfBirth());
+        }
+        if (request.currentAddress() != null) {
+            user.setCurrentAddress(request.currentAddress());
+        }
+        if (request.permanentAddress() != null) {
+            user.setPermanentAddress(request.permanentAddress());
         }
         if (request.pan() != null) {
             user.setPan(request.pan());
@@ -106,7 +122,11 @@ public class UserServiceImpl implements UserService {
                 user.getName(),
                 user.getEmail(),
                 user.getPrimaryMobile(),
+                user.getSecondaryMobile(),
                 user.getDateOfBirth(),
+                user.getPlaceOfBirth(),
+                user.getCurrentAddress(),
+                user.getPermanentAddress(),
                 user.getPan(),
                 user.getAadhaar(),
                 Boolean.TRUE.equals(user.getIsActive()),

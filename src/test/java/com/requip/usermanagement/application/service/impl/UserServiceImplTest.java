@@ -47,7 +47,11 @@ class UserServiceImplTest {
                 "Aarav Sharma",
                 "aarav.sharma@example.com",
                 "9876543210",
+                "9876543211",
                 LocalDate.of(1992, 4, 12),
+                "Pune",
+                "Current address line",
+                "Permanent address line",
                 "ABCDE1234F",
                 "123456789012"
         );
@@ -63,6 +67,10 @@ class UserServiceImplTest {
         assertThat(response.id()).isEqualTo(savedUser.getId());
         assertThat(response.name()).isEqualTo(savedUser.getName());
         assertThat(response.email()).isEqualTo(savedUser.getEmail());
+        assertThat(response.secondaryMobile()).isEqualTo(savedUser.getSecondaryMobile());
+        assertThat(response.placeOfBirth()).isEqualTo(savedUser.getPlaceOfBirth());
+        assertThat(response.currentAddress()).isEqualTo(savedUser.getCurrentAddress());
+        assertThat(response.permanentAddress()).isEqualTo(savedUser.getPermanentAddress());
         assertThat(response.pan()).isNotEqualTo(savedUser.getPan());
         assertThat(response.aadhaar()).isNotEqualTo(savedUser.getAadhaar());
         assertThat(response.pan()).isEqualTo("XXXXXX234F");
@@ -76,6 +84,10 @@ class UserServiceImplTest {
         User existingUser = createMockUser();
         UserUpdateRequest request = new UserUpdateRequest(
                 "Aarav S. Sharma",
+                null,
+                null,
+                null,
+                null,
                 null,
                 null,
                 null,
@@ -127,6 +139,10 @@ class UserServiceImplTest {
                 null,
                 null,
                 null,
+                null,
+                null,
+                null,
+                null,
                 null
         );
 
@@ -172,7 +188,11 @@ class UserServiceImplTest {
                 .name("Aarav Sharma")
                 .email("aarav.sharma@example.com")
                 .primaryMobile("9876543210")
+                .secondaryMobile("9876543211")
                 .dateOfBirth(LocalDate.of(1992, 4, 12))
+                .placeOfBirth("Pune")
+                .currentAddress("Current address line")
+                .permanentAddress("Permanent address line")
                 .pan("ABCDE1234F")
                 .aadhaar("123456789012")
                 .isActive(Boolean.TRUE)

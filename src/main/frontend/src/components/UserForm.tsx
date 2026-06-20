@@ -5,15 +5,16 @@ import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import type { UserResponse } from '../api/types';
-import { userSchema, type UserFormValues } from '../schemas/schema';
+import { userSchema, userUpdateSchema, type UserFormValues } from '../schemas/schema';
 import { useCreateUser, useUpdateUser } from '../hooks/useUsers';
 
 interface UserFormProps {
   user?: UserResponse;
   onSuccess?: (user: UserResponse) => void;
+  onCancel?: () => void;
 }
 
-export function UserForm({ user, onSuccess }: UserFormProps) {
+export function UserForm({ user, onSuccess, onCancel }: UserFormProps) {
   const createUser = useCreateUser();
   const updateUser = useUpdateUser();
   const isEditMode = Boolean(user);
@@ -27,12 +28,16 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<UserFormValues>({
-    resolver: zodResolver(userSchema),
+    resolver: zodResolver(isEditMode ? userUpdateSchema : userSchema),
     defaultValues: {
       name: user?.name ?? '',
       email: user?.email ?? '',
       primaryMobile: user?.primaryMobile ?? '',
+      secondaryMobile: user?.secondaryMobile ?? '',
       dateOfBirth: user?.dateOfBirth ?? '',
+      placeOfBirth: user?.placeOfBirth ?? '',
+      currentAddress: user?.currentAddress ?? '',
+      permanentAddress: user?.permanentAddress ?? '',
       pan: '',
       aadhaar: '',
     },
@@ -43,7 +48,11 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
       name: user?.name ?? '',
       email: user?.email ?? '',
       primaryMobile: user?.primaryMobile ?? '',
+      secondaryMobile: user?.secondaryMobile ?? '',
       dateOfBirth: user?.dateOfBirth ?? '',
+      placeOfBirth: user?.placeOfBirth ?? '',
+      currentAddress: user?.currentAddress ?? '',
+      permanentAddress: user?.permanentAddress ?? '',
       pan: '',
       aadhaar: '',
     });
@@ -60,7 +69,10 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
 
     return {
       ...registration,
-      onChange: (event: ChangeEvent<HTMLInputElement>) => {
+      onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        if (fieldName === 'pan') {
+          event.target.value = event.target.value.toUpperCase();
+        }
         registration.onChange(event);
         setTypingField(fieldName);
         window.clearTimeout(typingTimeoutRef.current);
@@ -71,9 +83,10 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
 
   async function onSubmit(values: UserFormValues) {
     try {
+      const payload = compactPayload(values);
       const response = isEditMode && user
-        ? await updateUser.mutateAsync({ id: user.id, payload: values })
-        : await createUser.mutateAsync(values);
+        ? await updateUser.mutateAsync({ id: user.id, payload })
+        : await createUser.mutateAsync(payload);
 
       if (!isEditMode) {
         reset();
@@ -133,6 +146,16 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
           />
         </Field>
 
+        <Field label="Secondary Mobile" error={errors.secondaryMobile?.message} isTyping={typingField === 'secondaryMobile'}>
+          <input
+            type="tel"
+            autoComplete="tel"
+            placeholder="9876543211"
+            {...registerWithTyping('secondaryMobile')}
+            className={inputClassName}
+          />
+        </Field>
+
         <Field label="Date of Birth" error={errors.dateOfBirth?.message} isTyping={typingField === 'dateOfBirth'}>
           <input
             type="date"
@@ -141,11 +164,38 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
           />
         </Field>
 
+        <Field label="Place of Birth" error={errors.placeOfBirth?.message} isTyping={typingField === 'placeOfBirth'}>
+          <input
+            type="text"
+            placeholder="City"
+            {...registerWithTyping('placeOfBirth')}
+            className={inputClassName}
+          />
+        </Field>
+
+        <Field label="Current Address" error={errors.currentAddress?.message} isTyping={typingField === 'currentAddress'}>
+          <textarea
+            rows={3}
+            placeholder="Current address"
+            {...registerWithTyping('currentAddress')}
+            className={`${inputClassName} h-24 resize-none py-3`}
+          />
+        </Field>
+
+        <Field label="Permanent Address" error={errors.permanentAddress?.message} isTyping={typingField === 'permanentAddress'}>
+          <textarea
+            rows={3}
+            placeholder="Permanent address"
+            {...registerWithTyping('permanentAddress')}
+            className={`${inputClassName} h-24 resize-none py-3`}
+          />
+        </Field>
+
         <Field label="PAN" error={errors.pan?.message} isTyping={typingField === 'pan'}>
           <input
             type="text"
             autoComplete="off"
-            placeholder="ABCDE1234F"
+            placeholder={isEditMode ? 'Leave blank to keep existing PAN' : 'ABCDE1234F'}
             {...registerWithTyping('pan')}
             className={`${inputClassName} uppercase`}
           />
@@ -156,14 +206,23 @@ export function UserForm({ user, onSuccess }: UserFormProps) {
             type="text"
             inputMode="numeric"
             autoComplete="off"
-            placeholder="123456789012"
+            placeholder={isEditMode ? 'Leave blank to keep existing Aadhaar' : '123456789012'}
             {...registerWithTyping('aadhaar')}
             className={inputClassName}
           />
         </Field>
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex flex-col-reverse justify-end gap-3 sm:flex-row">
+        {isEditMode && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-md border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-sky-300 hover:text-slate-950 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-sky-200"
+          >
+            Cancel
+          </button>
+        )}
         <button
           type="submit"
           disabled={submitDisabled}
@@ -217,4 +276,10 @@ function resolveErrorMessage(error: unknown) {
   }
 
   return 'Unable to save user. Please review the form and try again.';
+}
+
+function compactPayload(values: UserFormValues) {
+  return Object.fromEntries(
+    Object.entries(values).filter(([, value]) => value !== '')
+  ) as UserFormValues;
 }
