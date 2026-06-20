@@ -1,0 +1,15 @@
+target/
+
+src/main/frontend/node_modules/
+src/main/frontend/dist/
+src/main/frontend/.vite/
+src/main/frontend/*.tsbuildinfo
+src/main/frontend/node_modules/.tmp/
+
+.idea/
+.vscode/
+.history/
+.github/modernize/
+
+.DS_Store
+*.log
