@@ -7,14 +7,16 @@ import { useForm } from 'react-hook-form';
 import type { UserResponse } from '../api/types';
 import { userSchema, userUpdateSchema, type UserFormValues } from '../schemas/schema';
 import { useCreateUser, useUpdateUser } from '../hooks/useUsers';
+import type { ToastKind } from './Toast';
 
 interface UserFormProps {
   user?: UserResponse;
   onSuccess?: (user: UserResponse) => void;
   onCancel?: () => void;
+  onNotify?: (kind: ToastKind, message: string) => void;
 }
 
-export function UserForm({ user, onSuccess, onCancel }: UserFormProps) {
+export function UserForm({ user, onSuccess, onCancel, onNotify }: UserFormProps) {
   const createUser = useCreateUser();
   const updateUser = useUpdateUser();
   const isEditMode = Boolean(user);
@@ -92,10 +94,12 @@ export function UserForm({ user, onSuccess, onCancel }: UserFormProps) {
         reset();
       }
 
+      onNotify?.('success', isEditMode ? 'User updated successfully.' : 'User created successfully.');
       onSuccess?.(response);
     } catch (error) {
       const message = resolveErrorMessage(error);
       setError('root', { type: 'server', message });
+      onNotify?.('error', message);
     }
   }
 

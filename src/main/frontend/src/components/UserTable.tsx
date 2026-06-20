@@ -1,22 +1,47 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import type { UserResponse } from '../api/types';
 import { useDeleteUser, useGetUsers } from '../hooks/useUsers';
+import type { ToastKind } from './Toast';
 
 const PAGE_SIZE = 10;
 
 interface UserTableProps {
   onEdit: (user: UserResponse) => void;
+  onNotify?: (kind: ToastKind, message: string) => void;
 }
 
-export function UserTable({ onEdit }: UserTableProps) {
+export function UserTable({ onEdit, onNotify }: UserTableProps) {
   const [page, setPage] = useState(0);
+  const loadErrorNotifiedRef = useRef(false);
   const usersQuery = useGetUsers(page, PAGE_SIZE);
   const deleteUser = useDeleteUser();
 
   const users = usersQuery.data?.content ?? [];
   const canGoPrevious = page > 0 && !usersQuery.isFetching;
   const canGoNext = Boolean(usersQuery.data && !usersQuery.data.last) && !usersQuery.isFetching;
+
+  useEffect(() => {
+    if (usersQuery.isError && !loadErrorNotifiedRef.current) {
+      onNotify?.('error', 'Unable to load users. Please try again.');
+      loadErrorNotifiedRef.current = true;
+    }
+
+    if (!usersQuery.isError) {
+      loadErrorNotifiedRef.current = false;
+    }
+  }, [onNotify, usersQuery.isError]);
+
+  function handleDelete(userId: number) {
+    deleteUser.mutate(userId, {
+      onSuccess: () => {
+        onNotify?.('success', 'User deleted successfully.');
+      },
+      onError: () => {
+        onNotify?.('error', 'Unable to delete user. Please try again.');
+      },
+    });
+  }
 
   return (
     <section className="ui-card w-full space-y-4 p-5 sm:p-6">
@@ -110,7 +135,7 @@ export function UserTable({ onEdit }: UserTableProps) {
                     </button>
                     <button
                       type="button"
-                      onClick={() => deleteUser.mutate(user.id)}
+                      onClick={() => handleDelete(user.id)}
                       disabled={deleteUser.isPending}
                       className="rounded-md border border-red-200 bg-white px-3 py-1.5 font-medium text-red-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-red-300 hover:bg-red-50 hover:text-red-800 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-red-200 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60"
                     >
