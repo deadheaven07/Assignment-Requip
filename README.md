@@ -199,24 +199,12 @@ PUT /api/v1/users/{id}
 Content-Type: application/json
 ```
 
-All fields are optional. Only non-null fields are updated.
-
-```json
-{
-  "name": "Aarav S. Sharma",
-  "primaryMobile": "9876543211"
-}
-```
-
-Returns `200 OK` with the updated user response.
-
 ### Delete User
 
 ```http
 DELETE /api/v1/users/{id}
 ```
 
-Returns `204 No Content`. Deletion is soft: the user remains in the database with `is_active = false`.
 
 ## Validation Rules
 
@@ -289,9 +277,6 @@ List users:
 curl "http://localhost:8081/api/v1/users?page=0&size=10"
 ```
 
-## Development Notes
+## 👨‍💻 Author
 
-- Backend CORS currently allows all origins with `@CrossOrigin(origins = "*")`.
-- Hibernate schema generation defaults to `update`, which is convenient locally. For production, prefer migrations and a stricter schema strategy.
-- Keep `.env` and `.env.local` files out of Git. They are already ignored.
-- The frontend has create and delete controls in the table flow. The `UserForm` component also supports edit mode when passed a user.
+**Harsh Raghuwanshi**
