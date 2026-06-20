@@ -1,15 +1,32 @@
+# IntelliJ
+.idea/
+*.iml
+.vscode/
+.history/
+.github/modernize/
+
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+*.log
+
+
 target/
 
+# Frontend
 src/main/frontend/node_modules/
 src/main/frontend/dist/
 src/main/frontend/.vite/
 src/main/frontend/*.tsbuildinfo
 src/main/frontend/node_modules/.tmp/
 
-.idea/
-.vscode/
-.history/
-.github/modernize/
+# Environment files
+.env
+.env.local
 
+# OS files
 .DS_Store
+Thumbs.db
 *.log
